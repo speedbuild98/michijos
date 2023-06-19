@@ -1,6 +1,6 @@
 # Web App de Adopción de Mascotas - T3 Stack
 
-![Technologies](https://skillicons.dev/icons?i=html,css,js,ts,react,nextjs,tailwind,postgres,figma)
+![Technologies](https://skillicons.dev/icons?i=html,css,js,ts,react,nextjs,tailwind,prisma,postgres,figma)
 
 Este es un repositorio para una aplicación web desarrollada con el T3 Stack con el propósito de facilitar el proceso de adopción de mascotas. Esta aplicación será donada a una organización sin fines de lucro que se dedique a la adopción de animales.
 
