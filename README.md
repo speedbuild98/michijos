@@ -8,6 +8,8 @@ Este es un repositorio para una aplicación web desarrollada con el T3 Stack con
 
 ![Adopta una mascota](https://github.com/speedbuild98/michijos/blob/main/MICHIJOS.png?raw=true)
 
+[IR AL FIGMA](https://www.figma.com/file/6fYi4MtkDSzKnE4NZ1CRwk/UI-KIT---Pet-Adoption-(Community)-(Copy)?type=design&node-id=1-2&t=Cz6uhQJvdhkM9Hiu-0)
+
 El objetivo principal de esta web app es proporcionar una plataforma en línea donde las personas interesadas en adoptar una mascota puedan explorar y buscar animales disponibles para adopción. La aplicación permitirá a los usuarios registrarse, ver perfiles de mascotas, dar "me gusta" a las mascotas que les interesen y contactar a la organización para iniciar el proceso de adopción.
 
 La aplicación estará compuesta por los siguientes componentes clave:
