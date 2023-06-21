@@ -1,14 +1,12 @@
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { AuthShowcase, AllPetsList } from "~/components";
 import { useSession } from "next-auth/react";
+import { AuthShowcase } from "~/components";
 
 
 export default function Home() {
 
   const { data: sessionData } = useSession();
-
-
 
   return (
     <>
@@ -18,11 +16,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {sessionData ? (
-        <main className="flex min-h-screen flex-col items-center justify-around">
-
-
-          <AllPetsList />
-          <AuthShowcase />
+        <main className="flex min-h-screen flex-col items-center justify-around p-[20px]">
+          <h1 className="text-3xl uppercase text-primary">Patitas del Sur</h1>
+          <h2>Bienvenido {sessionData.user.name}</h2>
         </main>
       ) : (
         <main className="flex min-h-screen flex-col items-center justify-between p-[20px] py-[150px]">
