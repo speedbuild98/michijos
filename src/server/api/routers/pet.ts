@@ -37,7 +37,6 @@ getPetById: publicProcedure
     if (!pet) {
       throw new Error("No se encontró la mascota solicitada.");
     }
-
     return {
       success: true,
       message: "Mascota encontrada exitosamente.",
@@ -80,6 +79,26 @@ getPetById: publicProcedure
       console.error(error);
       throw new Error(
         "Ocurrió un error al obtener las mascotas disponibles. Por favor, inténtalo de nuevo más tarde."
+      );
+    }
+  }),
+
+  // Método para obtener las mascotas disponibles sólo del usuario
+  getAllUserPets: protectedProcedure.query(async ({ ctx }) => {
+    ctx.session?.user.id;
+    try {
+      const pet = await ctx.prisma.pet.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+
+      return pet;
+    } catch (error) {
+      // Manejo de errores: devuelve un mensaje de error al usuario
+      console.error(error);
+      throw new Error(
+        "Ocurrió un error al obtener las mascotas. Por favor, inténtalo de nuevo más tarde."
       );
     }
   }),
