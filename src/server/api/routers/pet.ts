@@ -89,13 +89,14 @@ getPetById: publicProcedure
     .input(
       z.object({
         name: z.string(),
-        age: z.number(),
+        age: z.string(),
         category: z.string(),
         description: z.string(),
         image: z.string(),
-        weight: z.number(),
+        weight: z.string(),
         adopted: z.boolean(),
         gender: z.string(),
+        breed: z.string(),
         characteristics: z.string(),
       })
     )
@@ -121,8 +122,9 @@ getPetById: publicProcedure
             image: input.image,
             weight: input.weight,
             adopted: input.adopted,
+            breed: input.breed,
             characteristics: input.characteristics,
-            userId: user.id,
+            User: { connect: { id: user.id } }, // Add the User argument here
           },
         });
 
@@ -190,13 +192,14 @@ getPetById: publicProcedure
       z.object({
         id: z.number(),
         name: z.string(),
-        age: z.number(),
+        age: z.string(),
         category: z.string(),
         description: z.string(),
         image: z.string(),
-        weight: z.number(),
+        weight: z.string(),
         adopted: z.boolean(),
         gender: z.string(),
+        breed: z.string(),
         characteristics: z.string(),
       })
     )
@@ -224,6 +227,7 @@ getPetById: publicProcedure
             image: input.image,
             weight: input.weight,
             adopted: input.adopted,
+            breed: input.breed,
             characteristics: input.characteristics,
           },
         });

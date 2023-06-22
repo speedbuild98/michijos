@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { api } from "~/utils/api";
 import { AuthShowcase, AllPetsList } from "~/components";
 import { useSession } from "next-auth/react";
 
@@ -7,8 +6,6 @@ import { useSession } from "next-auth/react";
 export default function Home() {
 
   const { data: sessionData } = useSession();
-
-
 
   return (
     <>
@@ -19,14 +16,11 @@ export default function Home() {
       </Head>
       {sessionData ? (
         <main className="flex min-h-screen flex-col items-center justify-around">
-
-
           <AllPetsList />
-          <AuthShowcase />
         </main>
       ) : (
         <main className="flex min-h-screen flex-col items-center justify-between p-[20px] py-[150px]">
-          <h1>Patitas del Sur</h1>
+          <h1 className="text-5xl uppercase text-accent">Patitas del Sur</h1>
           <AuthShowcase />
         </main>
       )}
