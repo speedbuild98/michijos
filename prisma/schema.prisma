@@ -71,10 +71,11 @@ model User {
 model Pet {
   id          Int   @id @default(autoincrement())
   name        String
-  category    String
-  weight      Float
-  gender      String
-  age         Int
+  category    String   @default("Gato")
+  weight      String
+  gender      String   @default("Macho")
+  age         String
+  breed       String?  @default("Mestizo")
   adopted     Boolean  @default(false)
   description String
   characteristics   String

@@ -37,7 +37,6 @@ getPetById: publicProcedure
     if (!pet) {
       throw new Error("No se encontró la mascota solicitada.");
     }
-
     return {
       success: true,
       message: "Mascota encontrada exitosamente.",
@@ -84,18 +83,39 @@ getPetById: publicProcedure
     }
   }),
 
+  // Método para obtener las mascotas disponibles sólo del usuario
+  getAllUserPets: protectedProcedure.query(async ({ ctx }) => {
+    ctx.session?.user.id;
+    try {
+      const pet = await ctx.prisma.pet.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+
+      return pet;
+    } catch (error) {
+      // Manejo de errores: devuelve un mensaje de error al usuario
+      console.error(error);
+      throw new Error(
+        "Ocurrió un error al obtener las mascotas. Por favor, inténtalo de nuevo más tarde."
+      );
+    }
+  }),
+
   // Método para crear las mascotas
   createPet: protectedProcedure
     .input(
       z.object({
         name: z.string(),
-        age: z.number(),
+        age: z.string(),
         category: z.string(),
         description: z.string(),
         image: z.string(),
-        weight: z.number(),
+        weight: z.string(),
         adopted: z.boolean(),
         gender: z.string(),
+        breed: z.string(),
         characteristics: z.string(),
       })
     )
@@ -121,8 +141,9 @@ getPetById: publicProcedure
             image: input.image,
             weight: input.weight,
             adopted: input.adopted,
+            breed: input.breed,
             characteristics: input.characteristics,
-            userId: user.id,
+            User: { connect: { id: user.id } }, // Add the User argument here
           },
         });
 
@@ -190,13 +211,14 @@ getPetById: publicProcedure
       z.object({
         id: z.number(),
         name: z.string(),
-        age: z.number(),
+        age: z.string(),
         category: z.string(),
         description: z.string(),
         image: z.string(),
-        weight: z.number(),
+        weight: z.string(),
         adopted: z.boolean(),
         gender: z.string(),
+        breed: z.string(),
         characteristics: z.string(),
       })
     )
@@ -224,6 +246,7 @@ getPetById: publicProcedure
             image: input.image,
             weight: input.weight,
             adopted: input.adopted,
+            breed: input.breed,
             characteristics: input.characteristics,
           },
         });
