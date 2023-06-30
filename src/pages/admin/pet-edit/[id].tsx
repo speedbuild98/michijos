@@ -3,53 +3,25 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { DateTime } from "luxon";
+import Link from "next/link";
 
-const NewPetForm = () => {
+export default function Page() {
   const router = useRouter();
+  const { id } = router.query;
+  const petId = parseInt(id, 10);
 
-  const [newPet, setNewPet] = useState({
-    name: "",
-    age: "",
-    category: "Gato",
-    description: "",
-    image: "",
-    weight: "",
-    adopted: false,
-    gender: "Macho",
-    characteristics: "",
-    breed: "Mestizo",
-  });
+  const {
+    data: pet,
+    refetch: refetchPet,
+    isLoading,
+  } = api.pet.getPetById.useQuery({ petId });
 
-  const createPet = api.pet.createPet.useMutation({
+  const updatePet = api.pet.updatePet.useMutation({
     onSuccess: () => {
-      setNewPet({
-        name: "",
-        age: "",
-        category: "",
-        description: "",
-        image: "",
-        weight: "",
-        adopted: false,
-        gender: "",
-        characteristics: "",
-        breed: "",
-      });
-
-      toast.success("Mascota creada exitosamente", {
-        icon: "😸",
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: false,
-        draggable: true,
-      });
       setTimeout(() => {
         router
-          .push("/admin")
-          .then(() => {
-            // Success callback
-          })
+          .push("/admin/pets")
           .catch((error) => {
             console.log(error);
           });
@@ -61,26 +33,51 @@ const NewPetForm = () => {
     const { name, value, type, checked } = event.target;
     const inputValue = type === "checkbox" ? checked : value;
 
-    setNewPet((prevPet) => ({
+    
+
+    setUpdatedPet((prevPet) => ({
       ...prevPet,
       [name]: inputValue,
     }));
   };
 
-  const handleCreatePet = async (event) => {
+  const handleUpdatePet = async (event) => {
     event.preventDefault();
-    await createPet.mutateAsync(newPet);
+    toast.success("Mascota actualizada exitosamente", {
+      icon: "😸",
+      position: "top-center",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: false,
+      draggable: true,
+    });
+    await updatePet.mutateAsync(updatedPet);
   };
 
+  const [updatedPet, setUpdatedPet] = useState({
+    name: pet?.data.name || "",
+    age: pet?.data.age || "",
+    category: pet?.data.category || "Gato",
+    description: pet?.data.description || "",
+    image: pet?.data.image || "",
+    weight: pet?.data.weight || "",
+    adopted: pet?.data.adopted || false, 
+    gender: pet?.data.gender || "Macho",
+    characteristics: pet?.data.characteristics || "",
+    breed: pet?.data.breed || "Mestizo",
+    id: petId,
+    phone: pet?.data.phone || "",
+    updatePet: DateTime.now().toString(),
+  });
+  
   return (
-    <div className="p-[20px]">
-      <p className="text-center text-3xl font-black uppercase text-accent">
-        Add New Pet
-      </p>
+    <div className="mx-auto border-r border-primary p-[20px]">
+      <p className="text-3xl font-black uppercase text-accent">UPDATE PET ID: {petId}</p>
       <form
-        onSubmit={handleCreatePet}
+        onSubmit={handleUpdatePet}
         className="mx-auto mt-10 flex flex-col items-center justify-center gap-10"
-      >
+      >error
         <div className="flex flex-row gap-20">
           <section className="flex w-fit flex-col">
             <div className="mb-2">
@@ -96,7 +93,7 @@ const NewPetForm = () => {
                 name="name"
                 required
                 className="input-bordered input-primary input w-full max-w-xs"
-                value={newPet.name}
+                value={updatedPet.name}
                 onChange={handleInputChange}
               />
             </div>
@@ -114,7 +111,7 @@ const NewPetForm = () => {
                 name="age"
                 required
                 className="input-bordered input-primary input w-full max-w-xs "
-                value={newPet.age}
+                value={updatedPet.age}
                 onChange={handleInputChange}
               />
             </div>
@@ -132,7 +129,7 @@ const NewPetForm = () => {
                 name="breed"
                 required
                 className="input-bordered input-primary input w-full max-w-xs "
-                value={newPet.breed}
+                value={updatedPet.breed}
                 onChange={handleInputChange}
               />
             </div>
@@ -149,7 +146,7 @@ const NewPetForm = () => {
                 name="category"
                 required
                 className="input-bordered input-primary input w-full max-w-xs"
-                value={newPet.category}
+                value={updatedPet.category}
                 onChange={handleInputChange}
                 defaultValue={"Gato"}
               >
@@ -172,7 +169,7 @@ const NewPetForm = () => {
                 id="image"
                 name="image"
                 className="input-bordered input-primary input w-full max-w-xs"
-                value={newPet.image}
+                value={updatedPet.image}
                 required
                 onChange={handleInputChange}
               />
@@ -190,7 +187,7 @@ const NewPetForm = () => {
                 name="weight"
                 required
                 className="input-bordered input-primary input w-full max-w-xs"
-                value={newPet.weight}
+                value={updatedPet.weight}
                 onChange={handleInputChange}
               />
             </div>
@@ -207,7 +204,7 @@ const NewPetForm = () => {
                 name="gender"
                 required
                 className="input-bordered input-primary input w-full max-w-xs"
-                value={newPet.gender}
+                value={updatedPet.gender}
                 onChange={handleInputChange}
                 defaultValue={"Macho"}
               >
@@ -228,7 +225,7 @@ const NewPetForm = () => {
                 name="description"
                 required
                 className="textarea-primary textarea w-full max-w-xs"
-                value={newPet.description}
+                value={updatedPet.description}
                 onChange={handleInputChange}
               ></textarea>
             </div>
@@ -236,43 +233,46 @@ const NewPetForm = () => {
         </div>
 
         <div className="w-[300px]">
-          <label
-            htmlFor="characteristics"
-            className="text-ghost mb-2 block font-medium text-center"
-          >
-            Características:
-          </label>
+            <div className="mb-2">
+              <label
+                htmlFor="image"
+                className="text-ghost mb-2 block text-sm font-medium"
+              >
+                Características:
+              </label>
+              <input
+                id="characteristics"
+                name="characteristics"
+                required
+                className="textarea-primary textarea w-full max-w-xs"
+                value={updatedPet.characteristics}
+                onChange={handleInputChange}
+              />
+            </div>
+
+          <div className="mb-2">
+            <label
+              htmlFor="phone"
+              className="text-ghost mb-2 block text-sm font-medium"
+            >
+              WhatsApp:
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              required
+              className="textarea-primary textarea w-full max-w-xs"
+              value={updatedPet.phone}
+              onChange={handleInputChange}
+            />
+          </div>
           <div className="flex flex-col">
-            <label htmlFor="vacunado" className="label cursor-pointer">
-              <span className="label-text">Vacunado</span>
-              <input
-                type="checkbox"
-                name="characteristics"
-                value="Vacunado"
-                checked={newPet.characteristics.includes("Vacunado")}
-                onChange={handleInputChange}
-                className="checkbox-primary checkbox"
-              />
-              <span className="checkbox-mark"></span>
-            </label>
-            <label htmlFor="desparacitado" className="label cursor-pointer">
-              <span className="label-text">Desparacitado</span>
-              <input
-                type="checkbox"
-                name="characteristics"
-                value="Desparasitado"
-                checked={newPet.characteristics.includes("Desparasitado")}
-                onChange={handleInputChange}
-                className="checkbox-primary checkbox"
-              />
-              <span className="checkbox-mark"></span>
-            </label>
             <label htmlFor="adopted" className="label cursor-pointer">
               <span className="label-text">Adoptado</span>
               <input
                 type="checkbox"
                 name="adopted"
-                checked={newPet.adopted}
+                checked={updatedPet.adopted}
                 onChange={handleInputChange}
                 className="checkbox-primary checkbox"
               />
@@ -280,13 +280,17 @@ const NewPetForm = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary btn">
-          Crear Mascota
+        <button type="submit" className="btn-success btn">
+          Actualizar Mascota
         </button>
+
+        <Link href="/admin/pets">
+        <button className="btn-error btn">
+          Cancelar
+        </button>
+        </Link>
       </form>
       <ToastContainer />
     </div>
   );
-};
-
-export default NewPetForm;
+}

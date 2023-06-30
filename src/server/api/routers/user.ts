@@ -49,4 +49,24 @@ getUserById: publicProcedure
   }
 }),
 
+// Método para obtener los usuarios administradores
+getAllAdminUsers: publicProcedure.query(async ({ ctx }) => {
+  ctx.session?.user.id;
+  try {
+    const users = await ctx.prisma.user.findMany({
+      where: {
+        isAdmin: true
+      }
+    });
+
+    return users;
+  } catch (error) {
+    // Manejo de errores: devuelve un mensaje de error al usuario
+    console.error(error);
+    throw new Error(
+      "Ocurrió un error al obtener los usuarios administradores. Por favor, inténtalo de nuevo más tarde."
+    );
+  }
+}),
+
 });

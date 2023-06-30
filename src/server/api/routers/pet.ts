@@ -24,32 +24,38 @@ export const petRouter = createTRPCRouter({
   }),
 
   // Método para obtener las mascotas por Id
-getPetById: publicProcedure
-.input(z.object({ petId: z.number() }))
-.query(async ({ ctx, input }) => {
-  try {
-    const pet = await ctx.prisma.pet.findUnique({
-      where: {
-        id: input.petId,
-      },
-    });
+  getPetById: publicProcedure
+    .input(z.object({ petId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const pet = await ctx.prisma.pet.findUnique({
+          where: {
+            id: input.petId,
+          },
+          include: { User: true }, // Include the User relation to fetch the creator
+        });
 
-    if (!pet) {
-      throw new Error("No se encontró la mascota solicitada.");
-    }
-    return {
-      success: true,
-      message: "Mascota encontrada exitosamente.",
-      data: pet,
-    };
-  } catch (error) {
-    console.error(error);
-    throw new Error(
-      "Ocurrió un error al obtener la mascota. Por favor, inténtalo de nuevo más tarde."
-    );
-  }
-}),
+        if (!pet) {
+          throw new Error("No se encontró la mascota solicitada.");
+        }
 
+        const creator = pet.User; // Access the User object
+
+        return {
+          success: true,
+          message: "Mascota encontrada exitosamente.",
+          data: {
+            pet,
+            creator,
+          },
+        };
+      } catch (error) {
+        console.error(error);
+        throw new Error(
+          "Ocurrió un error al obtener la mascota. Por favor, inténtalo de nuevo más tarde."
+        );
+      }
+    }),
 
   // Método para obtener las mascotas adoptadas
   getAdoptedPets: publicProcedure.query(async ({ ctx }) => {
@@ -79,6 +85,30 @@ getPetById: publicProcedure
       console.error(error);
       throw new Error(
         "Ocurrió un error al obtener las mascotas disponibles. Por favor, inténtalo de nuevo más tarde."
+      );
+    }
+  }),
+
+  // Método para obtener las mascotas con likes del usuario
+  getLikedPets: protectedProcedure
+  .input(z.object({ userId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    try {
+      const petsWithLikes = await ctx.prisma.pet.findMany({
+        where: {
+          likes: {
+            some: {
+              userId: input.userId
+            }
+          }
+        }
+      });
+  
+      return petsWithLikes;
+    } catch (error) {
+      console.error(error);
+      throw new Error(
+        "Ocurrió un error al obtener las mascotas. Por favor, inténtalo de nuevo más tarde."
       );
     }
   }),
@@ -117,6 +147,7 @@ getPetById: publicProcedure
         gender: z.string(),
         breed: z.string(),
         characteristics: z.string(),
+        phone: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -144,6 +175,7 @@ getPetById: publicProcedure
             breed: input.breed,
             characteristics: input.characteristics,
             User: { connect: { id: user.id } }, // Add the User argument here
+            phone: input.phone,
           },
         });
 
@@ -220,6 +252,7 @@ getPetById: publicProcedure
         gender: z.string(),
         breed: z.string(),
         characteristics: z.string(),
+        phone: z.string(),
       })
     )
 
@@ -248,6 +281,7 @@ getPetById: publicProcedure
             adopted: input.adopted,
             breed: input.breed,
             characteristics: input.characteristics,
+            phone: input.phone,
           },
         });
 
@@ -266,6 +300,89 @@ getPetById: publicProcedure
         console.error(error);
         throw new Error(
           "Ocurrió un error al actualizar la mascota. Por favor, inténtalo de nuevo más tarde."
+        );
+      }
+    }),
+
+  likePet: protectedProcedure
+    .input(
+      z.object({
+        petId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: ctx.session?.user.id },
+          include: { likes: true },
+        });
+
+        if (!user) {
+          throw new Error("Usuario no encontrado.");
+        }
+
+        const pet = await ctx.prisma.pet.findUnique({
+          where: { id: input.petId },
+        });
+
+        if (!pet) {
+          throw new Error("Mascota no encontrada.");
+        }
+
+        const existingLike = user.likes.find(
+          (like) => like.petId === input.petId
+        );
+
+        if (existingLike) {
+          // Si ya existe un like, se elimina
+          await ctx.prisma.like.delete({
+            where: { id: existingLike.id },
+          });
+          console.log("Like eliminado:", existingLike);
+          return {
+            success: true,
+            message: "Has quitado el like a la mascota exitosamente.",
+            like: existingLike,
+          };
+        } else {
+          // Si no existe un like, se crea uno nuevo
+          const newLike = await ctx.prisma.like.create({
+            data: {
+              pet: { connect: { id: input.petId } },
+              user: { connect: { id: user.id } },
+            },
+          });
+          console.log("Nuevo like creado:", newLike);
+          return {
+            success: true,
+            message: "Has dado like a la mascota exitosamente.",
+            like: newLike,
+          };
+        }
+      } catch (error) {
+        console.error("Error al dar/quitar like:", error);
+        throw new Error("Ocurrió un error al dar/quitar like a la mascota.");
+      }
+    }),
+
+  // Método para obtener los likes de una mascota
+  getPetLikes: publicProcedure
+    .input(z.object({ petId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const petLikes = await ctx.prisma.like.findMany({
+          where: { petId: input.petId },
+          include: { user: true },
+        });
+
+        return petLikes.map((like) => ({
+          id: like.id,
+          userId: like.user.id,
+        }));
+      } catch (error) {
+        console.error(error);
+        throw new Error(
+          "Ocurrió un error al obtener los likes de la mascota. Por favor, inténtalo de nuevo más tarde."
         );
       }
     }),
