@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+html {
+  user-select: none;
+}
+
+.green-degrade {
+  background: linear-gradient(41.66deg, rgba(85, 115, 222, 0.7) 1.17%, rgba(97, 241, 233, 0.360938) 31.38%, rgba(97, 241, 233, 0) 86.58%), #FFFFFF;
+}
+
+.blue-degrade {
+  background: linear-gradient(87.23deg, #00AC9D -14.34%, #4589B1 54.45%, #5E83B7 72.22%), #D9D9D9;
+}
+
+/*========== SCROLL BAR ==========*/
+::-webkit-scrollbar {
+  @apply w-[10px];
+  @apply bg-base-300;
+  @apply rounded-lg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary;
+  @apply rounded-lg;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-secondary;
+  @apply rounded-lg
+}

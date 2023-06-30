@@ -86,6 +86,7 @@ model Pet {
   updatedAt   DateTime @updatedAt
   User        User     @relation(fields: [userId], references: [id])
   likes       Like[]
+  phone       String   @default("")
 }
 
 model Like {
